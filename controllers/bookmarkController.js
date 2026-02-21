@@ -1,47 +1,47 @@
 const Bookmark = require('../models/Bookmark');
 
+// GET all bookmarks
 const getBookmarks = async (req, res) => {
     try {
-        const { userId } = req.auth; 
-        const bookmarks = await Bookmark.find({ userId }).sort({ createdAt: -1 });
+        const bookmarks = await Bookmark.find().sort({ createdAt: -1 });
         res.status(200).json(bookmarks);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: "Server Error: " + error.message });
     }
 };
 
+// ADD a bookmark
 const addBookmark = async (req, res) => {
     try {
         const { title, url } = req.body;
-        const { userId } = req.auth;
-        const newBookmark = await Bookmark.create({ title, url, userId });
+        const newBookmark = await Bookmark.create({ title, url });
         res.status(201).json(newBookmark);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: "Validation Error: " + error.message });
     }
 };
 
+// UPDATE a bookmark
 const updateBookmark = async (req, res) => {
     try {
-        const { userId } = req.auth;
-        const updatedBookmark = await Bookmark.findOneAndUpdate(
-            { _id: req.params.id, userId }, 
-            req.body,
+        const updatedBookmark = await Bookmark.findByIdAndUpdate(
+            req.params.id, 
+            req.body, 
             { new: true }
         );
         res.status(200).json(updatedBookmark);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: "Update Failed" });
     }
 };
 
+// DELETE a bookmark
 const deleteBookmark = async (req, res) => {
     try {
-        const { userId } = req.auth;
-        await Bookmark.findOneAndDelete({ _id: req.params.id, userId });
-        res.status(200).json({ message: "Deleted successfully" });
+        await Bookmark.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: "Bookmark deleted successfully" });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: "Delete Failed" });
     }
 };
 
